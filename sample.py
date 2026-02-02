@@ -8,6 +8,7 @@ import torch
 import tiktoken
 from model import GPTConfig, GPT
 import time
+import sys
 
 # -----------------------------------------------------------------------------
 init_from = 'gpt2' # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
@@ -75,9 +76,10 @@ else:
     decode = lambda l: enc.decode(l)
 
 # encode the beginning of the prompt
-if start.startswith('FILE:'):
-    with open(start[5:], 'r', encoding='utf-8') as f:
-        start = f.read()
+# if start.startswith('FILE:'):
+#     with open(start[5:], 'r', encoding='utf-8') as f:
+#         start = f.read()
+start = sys.argv[1]
 
 print(f"Read prompt is : {start}")
 start_ids = encode(start)
