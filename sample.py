@@ -13,9 +13,9 @@ import sys
 # -----------------------------------------------------------------------------
 init_from = 'gpt2' # either 'resume' (from an out_dir) or a gpt2 variant (e.g. 'gpt2-xl')
 out_dir = 'out' # ignored if init_from is not 'resume'
-start = "FILE:prompt.txt" # or "<|endoftext|>" or etc. Can also specify a file, use as: "FILE:prompt.txt"
+start = '' # or "<|endoftext|>" or etc. Can also specify a file, use as: "FILE:prompt.txt"
 num_samples = 5 # number of samples to draw
-max_new_tokens = 100 # number of tokens generated in each sample
+max_new_tokens = 0 # number of tokens generated in each sample
 temperature = 0.8 # 1.0 = no change, < 1.0 = less random, > 1.0 = more random, in predictions
 top_k = 200 # retain only the top_k most likely tokens, clamp others to have 0 probability
 seed = 1337
@@ -24,6 +24,14 @@ dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported
 compile = False # use PyTorch 2.0 to compile the model to be faster
 exec(open('configurator.py').read()) # overrides from command line or config file
 # -----------------------------------------------------------------------------
+
+if len(sys.argv) != 4:
+    print("Usage - python Sample.py <sample_count> <output_token_count> <prompt>")
+    sys.exit(1)
+
+num_samples = int(sys.argv[1])
+max_new_tokens = int(sys.argv[2])
+start = sys.argv[3]
 
 torch.manual_seed(seed)
 torch.cuda.manual_seed(seed)
@@ -79,7 +87,6 @@ else:
 # if start.startswith('FILE:'):
 #     with open(start[5:], 'r', encoding='utf-8') as f:
 #         start = f.read()
-start = sys.argv[1]
 
 print(f"Read prompt is : {start}")
 start_ids = encode(start)
@@ -94,5 +101,5 @@ with torch.no_grad():
             end_time = time.perf_counter()
             print(decode(y[0].tolist()))
             elapsed_ms = (end_time - start_time) * 1000
-            print(f"Inference elapsed time: {elapsed_ms:.3f} ms")
+            print(f"Total Inference elapsed time: {elapsed_ms:.3f} ms")
             print('---------------')
